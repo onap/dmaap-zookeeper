@@ -157,7 +157,7 @@
 						</goals>
 						<configuration>
 							<image>onap/dmaap/zookeeper</image>
-							<newName>${docker.push.registry}/onap/dmaap/zookeeper1:${zookeeperImg}</newName>
+							<newName>${docker.push.registry}/onap/dmaap/zookeeper:${zookeeperImg}</newName>
 							<skipDockerTag>${skip.docker.push}</skipDockerTag>
 						</configuration>
 					</execution>
