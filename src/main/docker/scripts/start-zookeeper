@@ -1,4 +1,3 @@
-USER=`whoami`
 HOST=`hostname -s`
 DOMAIN=`hostname -d`
 LOG_LEVEL=INFO
@@ -87,18 +86,16 @@ Starts a ZooKeeper server based on the supplied options.
 function create_data_dirs() {
     if [ ! -d $DATA_DIR  ]; then
         mkdir -p $DATA_DIR
-        chown -R $USER:$USER $DATA_DIR
     fi
 
     if [ ! -d $DATA_LOG_DIR  ]; then
         mkdir -p $DATA_LOG_DIR
-        chown -R $USER:USER $DATA_LOG_DIR
     fi
 
     if [ ! -d $LOG_DIR  ]; then
         mkdir -p $LOG_DIR
-        chown -R $USER:$USER $LOG_DIR
     fi
+    
     if [ ! -f $ID_FILE ] && [ $SERVERS -gt 1 ]; then
         echo $MY_ID >> $ID_FILE
     fi
