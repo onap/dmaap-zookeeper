@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-ENV ZK_USER=zookeeper \
+ENV ZK_USER=root \
     ZK_DATA_DIR=/var/lib/zookeeper/data \
     ZK_DATA_LOG_DIR=/var/lib/zookeeper/log \
     ZK_LOG_DIR=/var/log/zookeeper \
@@ -55,3 +55,6 @@ RUN set -x \
     && ln -s /opt/zookeeper/bin/* /usr/bin \
     && ln -s /opt/zookeeper/$ZK_DIST.jar /usr/share/zookeeper/ \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
+
+chmod 700 /opt/zookeeper/bin/start-zookeeper.sh
+chmod 700 /var/lib/zookeeper/data/myid

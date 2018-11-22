@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ZK_USER=${ZK_USER:-"zookeeper"}
+ZK_USER=${ZK_USER:-"root"}
 ZK_LOG_LEVEL=${ZK_LOG_LEVEL:-"INFO"}
 ZK_DATA_DIR=${ZK_DATA_DIR:-"/var/lib/zookeeper/data"}
 ZK_DATA_LOG_DIR=${ZK_DATA_LOG_DIR:-"/var/lib/zookeeper/log"}
@@ -23,8 +23,8 @@ ID_FILE="$ZK_DATA_DIR/myid"
 ZK_CONFIG_FILE="$ZK_CONF_DIR/zoo.cfg"
 LOGGER_PROPS_FILE="$ZK_CONF_DIR/log4j.properties"
 JAVA_ENV_FILE="$ZK_CONF_DIR/java.env"
-HOST=`hostname -s`
-DOMAIN=`hostname -d`
+HOST=$(hostname -s)
+DOMAIN=$(hostname -d)
 
 function print_servers() {
     for (( i=1; i<=$ZK_REPLICAS; i++ ))
