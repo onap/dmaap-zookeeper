@@ -56,5 +56,5 @@ RUN set -x \
     && ln -s /opt/zookeeper/$ZK_DIST.jar /usr/share/zookeeper/ \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
-chmod 700 /opt/zookeeper/bin/start-zookeeper.sh
-chmod 700 /var/lib/zookeeper/data/myid
+RUN chmod 700 /opt/zookeeper/bin/start-zookeeper.sh
+RUN chmod 700 /var/lib/zookeeper/data/myid
