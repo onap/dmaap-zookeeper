@@ -1,249 +1,147 @@
+#!/usr/bin/env bash
+
+ZK_USER=${ZK_USER:-"zookeeper"}
+ZK_LOG_LEVEL=${ZK_LOG_LEVEL:-"INFO"}
+ZK_DATA_DIR=${ZK_DATA_DIR:-"/var/lib/zookeeper/data"}
+ZK_DATA_LOG_DIR=${ZK_DATA_LOG_DIR:-"/var/lib/zookeeper/log"}
+ZK_LOG_DIR=${ZK_LOG_DIR:-"var/log/zookeeper"}
+ZK_CONF_DIR=${ZK_CONF_DIR:-"/opt/zookeeper/conf"}
+ZK_CLIENT_PORT=${ZK_CLIENT_PORT:-2181}
+ZK_SERVER_PORT=${ZK_SERVER_PORT:-2888}
+ZK_ELECTION_PORT=${ZK_ELECTION_PORT:-3888}
+ZK_TICK_TIME=${ZK_TICK_TIME:-2000}
+ZK_INIT_LIMIT=${ZK_INIT_LIMIT:-10}
+ZK_SYNC_LIMIT=${ZK_SYNC_LIMIT:-5}
+ZK_HEAP_SIZE=${ZK_HEAP_SIZE:-2G}
+ZK_MAX_CLIENT_CNXNS=${ZK_MAX_CLIENT_CNXNS:-60}
+ZK_MIN_SESSION_TIMEOUT=${ZK_MIN_SESSION_TIMEOUT:- $((ZK_TICK_TIME*2))}
+ZK_MAX_SESSION_TIMEOUT=${ZK_MAX_SESSION_TIMEOUT:- $((ZK_TICK_TIME*20))}
+ZK_SNAP_RETAIN_COUNT=${ZK_SNAP_RETAIN_COUNT:-3}
+ZK_PURGE_INTERVAL=${ZK_PURGE_INTERVAL:-0}
+ZK_PRE_ALLOC_SIZE=${ZK_PRE_ALLOC_SIZE:-5000}
+ID_FILE="$ZK_DATA_DIR/myid"
+ZK_CONFIG_FILE="$ZK_CONF_DIR/zoo.cfg"
+LOGGER_PROPS_FILE="$ZK_CONF_DIR/log4j.properties"
+JAVA_ENV_FILE="$ZK_CONF_DIR/java.env"
 HOST=`hostname -s`
 DOMAIN=`hostname -d`
-LOG_LEVEL=INFO
-DATA_DIR="/var/lib/zookeeper/data"
-DATA_LOG_DIR="/var/lib/zookeeper/log"
-LOG_DIR="/var/log/zookeeper"
-CONF_DIR="/opt/zookeeper/conf"
-CLIENT_PORT=2181
-SERVER_PORT=2888
-ELECTION_PORT=3888
-TICK_TIME=2000
-INIT_LIMIT=10
-SYNC_LIMIT=5
-HEAP=2G
-MAX_CLIENT_CNXNS=60
-SNAP_RETAIN_COUNT=3
-PURGE_INTERVAL=0
-SERVERS=1
-
-function print_usage() {
-echo "\
-Usage: start-zookeeper [OPTIONS]
-Starts a ZooKeeper server based on the supplied options.
-    --servers           The number of servers in the ensemble. The default 
-                        value is 1.
-
-    --data_dir          The directory where the ZooKeeper process will store its
-                        snapshots. The default is /var/lib/zookeeper/data.
-
-    --data_log_dir      The directory where the ZooKeeper process will store its 
-                        write ahead log. The default is 
-                        /var/lib/zookeeper/data/log.
-
-    --conf_dir          The directoyr where the ZooKeeper process will store its
-                        configuration. The default is /opt/zookeeper/conf.
-
-    --client_port       The port on which the ZooKeeper process will listen for 
-                        client requests. The default is 2181.
-
-    --election_port     The port on which the ZooKeeper process will perform 
-                        leader election. The default is 3888.
-
-    --server_port       The port on which the ZooKeeper process will listen for 
-                        requests from other servers in the ensemble. The 
-                        default is 2888. 
-
-    --tick_time         The length of a ZooKeeper tick in ms. The default is 
-                        2000.
-
-    --init_limit        The number of Ticks that an ensemble member is allowed 
-                        to perform leader election. The default is 10.
-
-    --sync_limit        The maximum session timeout that the ensemble will 
-                        allows a client to request. The default is 5.
-
-    --heap              The maximum amount of heap to use. The format is the 
-                        same as that used for the Xmx and Xms parameters to the 
-                        JVM. e.g. --heap=2G. The default is 2G.
-
-    --max_client_cnxns  The maximum number of client connections that the 
-                        ZooKeeper process will accept simultaneously. The 
-                        default is 60.
-
-    --snap_retain_count The maximum number of snapshots the ZooKeeper process 
-                        will retain if purge_interval is greater than 0. The 
-                        default is 3.
-
-    --purge_interval    The number of hours the ZooKeeper process will wait 
-                        between purging its old snapshots. If set to 0 old 
-                        snapshots will never be purged. The default is 0.
-
-    --max_session_timeout The maximum time in milliseconds for a client session 
-                        timeout. The default value is 2 * tick time.
-
-    --min_session_timeout The minimum time in milliseconds for a client session 
-                        timeout. The default value is 20 * tick time.
-
-    --log_level         The log level for the zookeeeper server. Either FATAL,
-                        ERROR, WARN, INFO, DEBUG. The default is INFO.
-      
-    --pre_alloc_size    Allocates space in the transaction log file in blocks of preAllocSize kilobytes.
-                       The default block size is 64M. 
-"
-}
-
-function create_data_dirs() {
-    if [ ! -d $DATA_DIR  ]; then
-        mkdir -p $DATA_DIR
-    fi
-
-    if [ ! -d $DATA_LOG_DIR  ]; then
-        mkdir -p $DATA_LOG_DIR
-    fi
-
-    if [ ! -d $LOG_DIR  ]; then
-        mkdir -p $LOG_DIR
-    fi
-    
-    if [ ! -f $ID_FILE ] && [ $SERVERS -gt 1 ]; then
-        echo $MY_ID >> $ID_FILE
-    fi
-}
 
 function print_servers() {
-    for (( i=1; i<=$SERVERS; i++ ))
+    for (( i=1; i<=$ZK_REPLICAS; i++ ))
     do
-        echo "server.$i=$NAME-$((i-1)).$DOMAIN:$SERVER_PORT:$ELECTION_PORT"
+        echo "server.$i=$NAME-$((i-1)).$DOMAIN:$ZK_SERVER_PORT:$ZK_ELECTION_PORT"
     done
 }
 
-function create_config() {
-    rm -f $CONFIG_FILE
-    echo "#This file was autogenerated DO NOT EDIT" >> $CONFIG_FILE
-    echo "clientPort=$CLIENT_PORT" >> $CONFIG_FILE
-    echo "dataDir=$DATA_DIR" >> $CONFIG_FILE
-    echo "dataLogDir=$DATA_LOG_DIR" >> $CONFIG_FILE
-    echo "tickTime=$TICK_TIME" >> $CONFIG_FILE
-    echo "initLimit=$INIT_LIMIT" >> $CONFIG_FILE
-    echo "syncLimit=$SYNC_LIMIT" >> $CONFIG_FILE
-    echo "maxClientCnxns=$MAX_CLIENT_CNXNS" >> $CONFIG_FILE
-    echo "minSessionTimeout=$MIN_SESSION_TIMEOUT" >> $CONFIG_FILE
-    echo "maxSessionTimeout=$MAX_SESSION_TIMEOUT" >> $CONFIG_FILE
-    echo "autopurge.snapRetainCount=$SNAP_RETAIN_COUNT" >> $CONFIG_FILE
-    echo "autopurge.purgeInteval=$PURGE_INTERVAL" >> $CONFIG_FILE
-    echo "preAllocSize=$PRE_ALLOC_SIZE" >> $CONFIG_FILE
-     if [ $SERVERS -gt 1 ]; then
-        print_servers >> $CONFIG_FILE
+function validate_env() {
+    echo "Validating environment"
+
+    if [ -z $ZK_REPLICAS ]; then
+        echo "ZK_REPLICAS is a mandatory environment variable"
+        exit 1
     fi
-    cat $CONFIG_FILE >&2
+
+    if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+        NAME=${BASH_REMATCH[1]}
+        ORD=${BASH_REMATCH[2]}
+    else
+        echo "Failed to extract ordinal from hostname $HOST"
+        exit 1
+    fi
+
+    MY_ID=$((ORD+1))
+    echo "ZK_REPLICAS=$ZK_REPLICAS"
+    echo "MY_ID=$MY_ID"
+    echo "ZK_LOG_LEVEL=$ZK_LOG_LEVEL"
+    echo "ZK_DATA_DIR=$ZK_DATA_DIR"
+    echo "ZK_DATA_LOG_DIR=$ZK_DATA_LOG_DIR"
+    echo "ZK_LOG_DIR=$ZK_LOG_DIR"
+    echo "ZK_CLIENT_PORT=$ZK_CLIENT_PORT"
+    echo "ZK_SERVER_PORT=$ZK_SERVER_PORT"
+    echo "ZK_ELECTION_PORT=$ZK_ELECTION_PORT"
+    echo "ZK_TICK_TIME=$ZK_TICK_TIME"
+    echo "ZK_INIT_LIMIT=$ZK_INIT_LIMIT"
+    echo "ZK_SYNC_LIMIT=$ZK_SYNC_LIMIT"
+    echo "ZK_MAX_CLIENT_CNXNS=$ZK_MAX_CLIENT_CNXNS"
+    echo "ZK_MIN_SESSION_TIMEOUT=$ZK_MIN_SESSION_TIMEOUT"
+    echo "ZK_MAX_SESSION_TIMEOUT=$ZK_MAX_SESSION_TIMEOUT"
+    echo "ZK_HEAP_SIZE=$ZK_HEAP_SIZE"
+    echo "ZK_SNAP_RETAIN_COUNT=$ZK_SNAP_RETAIN_COUNT"
+    echo "ZK_PURGE_INTERVAL=$ZK_PURGE_INTERVAL"
+    echo "ZK_PRE_ALLOC_SIZE=$ZK_PRE_ALLOC_SIZE"
+    echo "ENSEMBLE"
+    print_servers
+    echo "Environment validation successful"
 }
 
-function create_jvm_props() {
-    rm -f $JAVA_ENV_FILE
-    echo "ZOO_LOG_DIR=$LOG_DIR" >> $JAVA_ENV_FILE
-    echo "JVMFLAGS=\"-Xmx$HEAP -Xms$HEAP\"" >> $JAVA_ENV_FILE
+function create_config() {
+    rm -f $ZK_CONFIG_FILE
+    echo "Creating ZooKeeper configuration"
+    echo "#This file was autogenerated by k8szk DO NOT EDIT" >> $ZK_CONFIG_FILE
+    echo "clientPort=$ZK_CLIENT_PORT" >> $ZK_CONFIG_FILE
+    echo "dataDir=$ZK_DATA_DIR" >> $ZK_CONFIG_FILE
+    echo "dataLogDir=$ZK_DATA_LOG_DIR" >> $ZK_CONFIG_FILE
+    echo "tickTime=$ZK_TICK_TIME" >> $ZK_CONFIG_FILE
+    echo "initLimit=$ZK_INIT_LIMIT" >> $ZK_CONFIG_FILE
+    echo "syncLimit=$ZK_SYNC_LIMIT" >> $ZK_CONFIG_FILE
+    echo "maxClientCnxns=$ZK_MAX_CLIENT_CNXNS" >> $ZK_CONFIG_FILE
+    echo "minSessionTimeout=$ZK_MIN_SESSION_TIMEOUT" >> $ZK_CONFIG_FILE
+    echo "maxSessionTimeout=$ZK_MAX_SESSION_TIMEOUT" >> $ZK_CONFIG_FILE
+    echo "autopurge.snapRetainCount=$ZK_SNAP_RETAIN_COUNT" >> $ZK_CONFIG_FILE 
+    echo "autopurge.purgeInterval=$ZK_PURGE_INTERVAL" >> $ZK_CONFIG_FILE
+    echo "preAllocSize=$ZK_PRE_ALLOC_SIZE" >> $ZK_CONFIG_FILE
+
+    if [ $ZK_REPLICAS -gt 1 ]; then
+        print_servers >> $ZK_CONFIG_FILE
+    fi
+
+    echo "Wrote ZooKeeper configuration file to $ZK_CONFIG_FILE"
 }
 
-function create_log_props() {
+function create_data_dirs() {
+    echo "Creating ZooKeeper data directories and setting permissions"
+
+    if [ ! -d $ZK_DATA_DIR  ]; then
+        mkdir -p $ZK_DATA_DIR
+        chown -R $ZK_USER:$ZK_USER $ZK_DATA_DIR
+    fi
+
+    if [ ! -d $ZK_DATA_LOG_DIR  ]; then
+        mkdir -p $ZK_DATA_LOG_DIR
+        chown -R $ZK_USER:$ZK_USER $ZK_DATA_LOG_DIR
+    fi
+
+    if [ ! -d $ZK_LOG_DIR  ]; then
+        mkdir -p $ZK_LOG_DIR
+        chown -R $ZK_USER:$ZK_USER $ZK_LOG_DIR
+    fi
+
+    if [ ! -f $ID_FILE ]; then
+        echo $MY_ID >> $ID_FILE
+    fi
+
+    echo "Created ZooKeeper data directories and set permissions in $ZK_DATA_DIR"
+}
+
+function create_log_props () {
     rm -f $LOGGER_PROPS_FILE
     echo "Creating ZooKeeper log4j configuration"
     echo "zookeeper.root.logger=CONSOLE" >> $LOGGER_PROPS_FILE
-    echo "zookeeper.console.threshold="$LOG_LEVEL >> $LOGGER_PROPS_FILE
+    echo "zookeeper.console.threshold="$ZK_LOG_LEVEL >> $LOGGER_PROPS_FILE
     echo "log4j.rootLogger=\${zookeeper.root.logger}" >> $LOGGER_PROPS_FILE
     echo "log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender" >> $LOGGER_PROPS_FILE
     echo "log4j.appender.CONSOLE.Threshold=\${zookeeper.console.threshold}" >> $LOGGER_PROPS_FILE
     echo "log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout" >> $LOGGER_PROPS_FILE
     echo "log4j.appender.CONSOLE.layout.ConversionPattern=%d{ISO8601} [myid:%X{myid}] - %-5p [%t:%C{1}@%L] - %m%n" >> $LOGGER_PROPS_FILE
+    echo "Wrote log4j configuration to $LOGGER_PROPS_FILE"
 }
 
-optspec=":hv-:"
-while getopts "$optspec" optchar; do
+function create_java_env() {
+    rm -f $JAVA_ENV_FILE
+    echo "Creating JVM configuration file"
+    echo "ZOO_LOG_DIR=$ZK_LOG_DIR" >> $JAVA_ENV_FILE
+    echo "JVMFLAGS=\"-Xmx$ZK_HEAP_SIZE -Xms$ZK_HEAP_SIZE\"" >> $JAVA_ENV_FILE
+    echo "Wrote JVM configuration to $JAVA_ENV_FILE"
+}
 
-    case "${optchar}" in
-        -)
-            case "${OPTARG}" in
-                servers=*)
-                    SERVERS=${OPTARG##*=}
-                    ;;
-                data_dir=*)
-                    DATA_DIR=${OPTARG##*=}
-                    ;;
-                data_log_dir=*)
-                    DATA_LOG_DIR=${OPTARG##*=}
-                    ;;
-                log_dir=*)
-                    LOG_DIR=${OPTARG##*=}
-                    ;;
-                conf_dir=*)
-                    CONF_DIR=${OPTARG##*=}
-                    ;;
-                client_port=*)
-                    CLIENT_PORT=${OPTARG##*=}
-                    ;;
-                election_port=*)
-                    ELECTION_PORT=${OPTARG##*=}
-                    ;;
-                server_port=*)
-                    SERVER_PORT=${OPTARG##*=}
-                    ;;
-                tick_time=*)
-                    TICK_TIME=${OPTARG##*=}
-                    ;;
-                init_limit=*)
-                    INIT_LIMIT=${OPTARG##*=}
-                    ;;
-                sync_limit=*)
-                    SYNC_LIMIT=${OPTARG##*=}
-                    ;;
-                heap=*)
-                    HEAP=${OPTARG##*=}
-                    ;;
-                max_client_cnxns=*)
-                    MAX_CLIENT_CNXNS=${OPTARG##*=}
-                    ;;
-                snap_retain_count=*)
-                    SNAP_RETAIN_COUNT=${OPTARG##*=}
-                    ;;
-                purge_interval=*)
-                    PURGE_INTERVAL=${OPTARG##*=}
-                    ;;
-                max_session_timeout=*)
-                    MAX_SESSION_TIMEOUT=${OPTARG##*=}
-                    ;;
-                min_session_timeout=*)
-                    MIN_SESSION_TIMEOUT=${OPTARG##*=}
-                    ;;
-                log_level=*)
-                    LOG_LEVEL=${OPTARG##*=}
-                    ;;
-                pre_alloc_size=*)
-                    PRE_ALLOC_SIZE=${OPTARG##*=}
-                    ;;
-                *)
-                    echo "Unknown option --${OPTARG}" >&2
-                    exit 1
-                    ;;
-            esac;;
-        h)
-            print_usage
-            exit
-            ;;
-        v)
-            echo "Parsing option: '-${optchar}'" >&2
-            ;;
-        *)
-            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
-                echo "Non-option argument: '-${OPTARG}'" >&2
-            fi
-            ;;
-    esac
-done
-
-MIN_SESSION_TIMEOUT=${MIN_SESSION_TIMEOUT:- $((TICK_TIME*2))}
-MAX_SESSION_TIMEOUT=${MAX_SESSION_TIMEOUT:- $((TICK_TIME*20))}
-ID_FILE="$DATA_DIR/myid"
-CONFIG_FILE="$CONF_DIR/zoo.cfg"
-LOGGER_PROPS_FILE="$CONF_DIR/log4j.properties"
-JAVA_ENV_FILE="$CONF_DIR/java.env"
-if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
-    NAME=${BASH_REMATCH[1]}
-    ORD=${BASH_REMATCH[2]}
-else
-    echo "Fialed to parse name and ordinal of Pod"
-    exit 1
-fi
-
-MY_ID=$((ORD+1))
-
-create_config && create_jvm_props && create_log_props && create_data_dirs && exec zkServer.sh start-foreground
+validate_env && create_config && create_log_props && create_data_dirs && create_java_env && exec zkServer.sh start-foreground
