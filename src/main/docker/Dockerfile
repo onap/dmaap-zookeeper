@@ -43,7 +43,7 @@ RUN set -x \
 # Copy configuration generator script to bin
 COPY scripts /opt/zookeeper/bin/
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/start-zookeeper.sh
-RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/start-metrics.sh
+RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-metrics.sh
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-ready.sh
 
 # Create a user for the zookeeper process and configure file system ownership
@@ -62,5 +62,5 @@ RUN set -x \
 
 RUN chown -R $ZK_USER:$ZK_USER /var/lib/zookeeper/data/myid
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/start-zookeeper.sh
-RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/start-metrics.sh
+RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-metrics.sh
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-ready.sh
