@@ -49,7 +49,6 @@ RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-ready.sh
 # Create a user for the zookeeper process and configure file system ownership
 # for necessary directories and symlink the distribution as a user executable
 RUN set -x \
-    && useradd $ZK_USER \
     && [ `id -u $ZK_USER` -eq 1000 ] \
     && [ `id -g $ZK_USER` -eq 1000 ] \
     && mkdir -p $ZK_DATA_DIR $ZK_DATA_LOG_DIR $ZK_LOG_DIR /usr/share/zookeeper /tmp/zookeeper /usr/etc/ \
