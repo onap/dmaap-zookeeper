@@ -116,9 +116,8 @@ function create_data_dirs() {
         chown -R $ZK_USER:$ZK_USER $ZK_LOG_DIR
     fi
 
-    if [ ! -f $ID_FILE ]; then
         echo $MY_ID >> $ID_FILE
-    fi
+        cat  $ID_FILE
 
     echo "Created ZooKeeper data directories and set permissions in $ZK_DATA_DIR"
 }
