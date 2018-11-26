@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Ram Koya <rk541m@att.com>
+Submitted-by: Ram Koya <rk541m@att.com>
+Submitted-at: Mon, 26 Nov 2018 20:57:48 +0000
+Reviewed-on: https://gerrit.onap.org/r/73567
+Project: dmaap/zookeeper
+Branch: refs/heads/master
