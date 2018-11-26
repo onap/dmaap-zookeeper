@@ -6,7 +6,7 @@ ENV ZK_USER=root \
     ZK_LOG_DIR=/var/log/zookeeper \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-ARG GPG_KEY=C823E3E5B12AF29C67F81976F5CECB3CB5E9BD2D
+
 ARG ZK_DIST=zookeeper-3.4.10
 
 RUN set -x \
@@ -14,11 +14,8 @@ RUN set -x \
     && apt-get install -y openjdk-8-jre-headless wget netcat-openbsd \
     && wget -q "http://www.apache.org/dist/zookeeper/$ZK_DIST/$ZK_DIST.tar.gz" \
     && wget -q "http://www.apache.org/dist/zookeeper/$ZK_DIST/$ZK_DIST.tar.gz.asc" \
-    && export GNUPGHOME="$(mktemp -d)" \
-    && gpg --keyserver ha.pool.sks-keyservers.net --recv-key "$GPG_KEY" \
-    && gpg --batch --verify "$ZK_DIST.tar.gz.asc" "$ZK_DIST.tar.gz" \
-    && tar -xzf "$ZK_DIST.tar.gz" -C /opt \
-    && rm -r "$GNUPGHOME" "$ZK_DIST.tar.gz" "$ZK_DIST.tar.gz.asc" \
+   && tar -xzf "$ZK_DIST.tar.gz" -C /opt \
+    && rm -r  "$ZK_DIST.tar.gz" "$ZK_DIST.tar.gz.asc" \
     && ln -s /opt/$ZK_DIST /opt/zookeeper \
     && rm -rf /opt/zookeeper/CHANGES.txt \
     /opt/zookeeper/README.txt \
@@ -43,13 +40,9 @@ RUN set -x \
 # Copy configuration generator script to bin
 COPY scripts /opt/zookeeper/bin/
 
-
 # Create a user for the zookeeper process and configure file system ownership
 # for necessary directories and symlink the distribution as a user executable
 RUN set -x \
-    && useradd $ZK_USER \
-    && [ `id -u $ZK_USER` -eq 1000 ] \
-    && [ `id -g $ZK_USER` -eq 1000 ] \
     && mkdir -p $ZK_DATA_DIR $ZK_DATA_LOG_DIR $ZK_LOG_DIR /usr/share/zookeeper /tmp/zookeeper /usr/etc/ \
     && chown -R "$ZK_USER:$ZK_USER" /opt/$ZK_DIST $ZK_DATA_DIR $ZK_LOG_DIR $ZK_DATA_LOG_DIR /tmp/zookeeper \
     && ln -s /opt/zookeeper/conf/ /usr/etc/zookeeper \
@@ -58,7 +51,7 @@ RUN set -x \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
 
-RUN chown -R $ZK_USER:$ZK_USER /var/lib/zookeeper/data/myid
+
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/start-zookeeper.sh
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-metrics.sh
 RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-ready.sh
