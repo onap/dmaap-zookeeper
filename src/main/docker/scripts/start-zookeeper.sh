@@ -37,7 +37,7 @@ function print_servers() {
 function validate_env() {
     echo "Validating environment"
 
-    if [  $ZK_REPLICAS -gt 1] &&  [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+    if[ $HOST =~ (.*)-([0-9]+)$ ]]; then
     
         NAME=${BASH_REMATCH[1]}
         ORD=${BASH_REMATCH[2]}
