@@ -50,4 +50,4 @@ RUN set -x \
     && ln -s /opt/zookeeper/$ZK_DIST.jar /usr/share/zookeeper/ \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
-chmod -R 777 /opt/zookeeper/bin
+RUN chmod -R 777 /opt/zookeeper/bin
