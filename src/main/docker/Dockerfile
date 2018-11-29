@@ -51,3 +51,5 @@ RUN set -x \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
 RUN chmod -R 777 /opt/zookeeper/bin
+ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
+EXPOSE 2181 2888 3888

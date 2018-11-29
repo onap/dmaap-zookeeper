@@ -67,10 +67,10 @@ function validate_env() {
     echo "ZK_PURGE_INTERVAL=$ZK_PURGE_INTERVAL"
     echo "ZK_PRE_ALLOC_SIZE=$ZK_PRE_ALLOC_SIZE"
     
-    if [ $ZK_REPLICAS -gt 1 ]  then
+    if [ $ZK_REPLICAS -gt 1 ];  then
         echo "ENSEMBLE"
         print_servers
-        fi
+    fi
     
     echo "Environment validation successful"
 }
@@ -119,7 +119,7 @@ function create_data_dirs() {
 
     if [ $ZK_REPLICAS -gt 1 ] && [  ! -f $ID_FILE]; then
         echo $MY_ID >> $ID_FILE
-        fi
+    fi
 
     echo "Created ZooKeeper data directories and set permissions in $ZK_DATA_DIR"
 }
