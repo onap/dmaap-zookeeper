@@ -36,9 +36,8 @@ function print_servers() {
 
 function validate_env() {
     echo "Validating environment"
-
-    if[ $HOST =~ (.*)-([0-9]+)$ ]]; then
     
+    if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
         NAME=${BASH_REMATCH[1]}
         ORD=${BASH_REMATCH[2]}
         MY_ID=$((ORD+1))
@@ -46,6 +45,7 @@ function validate_env() {
     else
         echo "Failed to extract ordinal from hostname $HOST"
     fi
+
     
    
     echo "ZK_REPLICAS=$ZK_REPLICAS"
