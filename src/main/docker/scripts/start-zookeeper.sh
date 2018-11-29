@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
+ZK_REPLICAS=${ZK_REPLICAS:-1}
 ZK_USER=${ZK_USER:-"root"}
 ZK_LOG_LEVEL=${ZK_LOG_LEVEL:-"INFO"}
 ZK_DATA_DIR=${ZK_DATA_DIR:-"/var/lib/zookeeper/data"}
-ZK_DATA_LOG_DIR=${ZK_DATA_LOG_DIR:-"/var/lib/zookeeper/log"}
+ZK_DATA_LOG_DIR=${ZK_DATA_LOG_DIR:-"/var/lib/zookeeper/data"}
 ZK_LOG_DIR=${ZK_LOG_DIR:-"var/log/zookeeper"}
 ZK_CONF_DIR=${ZK_CONF_DIR:-"/opt/zookeeper/conf"}
 ZK_CLIENT_PORT=${ZK_CLIENT_PORT:-2181}
@@ -36,22 +37,18 @@ function print_servers() {
 function validate_env() {
     echo "Validating environment"
 
-    if [ -z $ZK_REPLICAS ]; then
-        echo "ZK_REPLICAS is a mandatory environment variable"
-        exit 1
-    fi
-
-    if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+    if [  $ZK_REPLICAS -gt 1] &&  [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
+    
         NAME=${BASH_REMATCH[1]}
         ORD=${BASH_REMATCH[2]}
+        MY_ID=$((ORD+1))
+        echo "MY_ID=$MY_ID"
     else
         echo "Failed to extract ordinal from hostname $HOST"
-        exit 1
     fi
-
-    MY_ID=$((ORD+1))
+    
+   
     echo "ZK_REPLICAS=$ZK_REPLICAS"
-    echo "MY_ID=$MY_ID"
     echo "ZK_LOG_LEVEL=$ZK_LOG_LEVEL"
     echo "ZK_DATA_DIR=$ZK_DATA_DIR"
     echo "ZK_DATA_LOG_DIR=$ZK_DATA_LOG_DIR"
@@ -69,8 +66,12 @@ function validate_env() {
     echo "ZK_SNAP_RETAIN_COUNT=$ZK_SNAP_RETAIN_COUNT"
     echo "ZK_PURGE_INTERVAL=$ZK_PURGE_INTERVAL"
     echo "ZK_PRE_ALLOC_SIZE=$ZK_PRE_ALLOC_SIZE"
-    echo "ENSEMBLE"
-    print_servers
+    
+    if [ $ZK_REPLICAS -gt 1 ]  then
+        echo "ENSEMBLE"
+        print_servers
+        fi
+    
     echo "Environment validation successful"
 }
 
@@ -116,9 +117,8 @@ function create_data_dirs() {
         chown -R $ZK_USER:$ZK_USER $ZK_LOG_DIR
     fi
 
-    if [ $ZK_REPLICAS -gt 1 ]; then
+    if [ $ZK_REPLICAS -gt 1 ] && [  ! -f $ID_FILE]; then
         echo $MY_ID >> $ID_FILE
-        cat  $ID_FILE
         fi
 
     echo "Created ZooKeeper data directories and set permissions in $ZK_DATA_DIR"

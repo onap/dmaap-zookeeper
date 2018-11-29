@@ -50,8 +50,4 @@ RUN set -x \
     && ln -s /opt/zookeeper/$ZK_DIST.jar /usr/share/zookeeper/ \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
-
-
-RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/start-zookeeper.sh
-RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-metrics.sh
-RUN chown -R $ZK_USER:$ZK_USER /opt/zookeeper/bin/zookeeper-ready.sh
+chmod -R 777 /opt/zookeeper/bin
