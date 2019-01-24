@@ -6,7 +6,7 @@ ENV ZK_USER=root \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
 
-ARG ZK_DIST=zookeeper-3.4.10
+ARG ZK_DIST=zookeeper-3.4.9
 
 RUN set -x \
     && apt-get update \
