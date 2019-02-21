@@ -253,15 +253,11 @@
                                     </properties>
                                     <source>
                                         println project.properties['ver'];
-                                        def versionArray;
-                                        if ( project.properties['ver'] != null ) {
-                                        versionArray = project.properties['ver'].split('\\.');
-                                        }
                                         if ( project.properties['ver'].endsWith("-SNAPSHOT") ) {
                                         project.properties['dockertag1']=project.properties['ver'] + "-latest";
                                         project.properties['dockertag2']=project.properties['ver'] + "-" + project.properties['timestamp'];
                                         } else {
-                                        project.properties['dockertag1']=versionArray[0] + '.' + versionArray[1] + "-STAGING-latest";
+                                        project.properties['dockertag1']=project.properties['ver']+ "-STAGING-latest";
                                         project.properties['dockertag2']=project.properties['ver'] + "-STAGING-" + project.properties['timestamp'];
                                         }
                                         println 'docker tag 1: ' + project.properties['dockertag1'];
