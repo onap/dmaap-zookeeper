@@ -1,16 +1,21 @@
-FROM ubuntu:16.04
+#FROM ubuntu:16.04
+FROM openjdk:8-alpine
 
 ENV ZK_USER=root \
     ZK_DATA_DIR=/var/lib/zookeeper/data \
     ZK_LOG_DIR=/var/log/zookeeper \
-    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+#    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 
 
 ARG ZK_DIST=zookeeper-3.4.9
 
 RUN set -x \
-    && apt-get update \
-    && apt-get install -y openjdk-8-jre-headless wget netcat-openbsd \
+#    && apt-get update \
+#    && apt-get install -y openjdk-8-jre-headless wget netcat-openbsd \
+    && apk update \
+    && apk add wget netcat-openbsd \
+    && apk add bash \
     && wget -q "http://archive.apache.org/dist/zookeeper/$ZK_DIST/$ZK_DIST.tar.gz" \
     && wget -q "http://archive.apache.org/dist/zookeeper/$ZK_DIST/$ZK_DIST.tar.gz.asc" \
    && tar -xzf "$ZK_DIST.tar.gz" -C /opt \
@@ -33,7 +38,7 @@ RUN set -x \
     /opt/zookeeper/$ZK_DIST.jar.asc \
     /opt/zookeeper/$ZK_DIST.jar.md5 \
     /opt/zookeeper/$ZK_DIST.jar.sha1 \
-    && apt-get autoremove -y wget \
+#    && apt-get autoremove -y wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy configuration generator script to bin
@@ -50,5 +55,6 @@ RUN set -x \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
 RUN chmod -R 777 /opt/zookeeper/bin
-ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
+#ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
+ENTRYPOINT ["bash", "/opt/zookeeper/bin/start-zookeeper.sh"]
 EXPOSE 2181 2888 3888
