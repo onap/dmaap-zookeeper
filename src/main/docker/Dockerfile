@@ -1,7 +1,6 @@
 FROM ubuntu:16.04
 
-ENV ZK_USER=root \
-    ZK_DATA_DIR=/var/lib/zookeeper/data \
+ENV ZK_DATA_DIR=/var/lib/zookeeper/data \
     ZK_LOG_DIR=/var/log/zookeeper \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
@@ -43,7 +42,6 @@ COPY scripts /opt/zookeeper/bin/
 # for necessary directories and symlink the distribution as a user executable
 RUN set -x \
     && mkdir -p $ZK_DATA_DIR  $ZK_LOG_DIR /usr/share/zookeeper /tmp/zookeeper /usr/etc/ \
-    && chown -R "$ZK_USER:$ZK_USER" /opt/$ZK_DIST $ZK_DATA_DIR $ZK_LOG_DIR  /tmp/zookeeper \
     && ln -s /opt/zookeeper/conf/ /usr/etc/zookeeper \
     && ln -s /opt/zookeeper/bin/* /usr/bin \
     && ln -s /opt/zookeeper/$ZK_DIST.jar /usr/share/zookeeper/ \
@@ -52,3 +50,10 @@ RUN set -x \
 RUN chmod -R 777 /opt/zookeeper/bin
 ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
 EXPOSE 2181 2888 3888
+
+RUN addgroup  onap \
+    && adduser  mrzookeeper -ingroup onap \
+    && chown -R mrzookeeper:onap /opt/$ZK_DIST/ /opt/zookeeper/ /var/lib/ /var/log/ /tmp/zookeeper/
+
+USER mrzookeeper
+
