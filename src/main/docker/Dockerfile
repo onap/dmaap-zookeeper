@@ -51,9 +51,9 @@ RUN chmod -R 777 /opt/zookeeper/bin
 ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
 EXPOSE 2181 2888 3888
 
-RUN addgroup  onap \
-    && adduser  mrzookeeper -ingroup onap \
-    && chown -R mrzookeeper:onap /opt/$ZK_DIST/ /opt/zookeeper/ /var/lib/ /var/log/ /tmp/zookeeper/
+RUN addgroup  2000 \
+    && adduser  1000 -ingroup 2000 \
+    && chown -R 1000:2000 /opt/$ZK_DIST/ /opt/zookeeper/ /var/lib/ /var/log/ /tmp/zookeeper/
 
-USER mrzookeeper
+USER 1000
 
