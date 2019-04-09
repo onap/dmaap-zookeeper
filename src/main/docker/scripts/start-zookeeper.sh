@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ZK_REPLICAS=${ZK_REPLICAS:-1}
-ZK_USER=${ZK_USER:-"1000"}
+ZK_USER=${ZK_USER:-"mrzookeeper"}
 ZK_LOG_LEVEL=${ZK_LOG_LEVEL:-"INFO"}
 ZK_DATA_DIR=${ZK_DATA_DIR:-"/var/lib/zookeeper/data"}
 ZK_DATA_LOG_DIR=${ZK_DATA_LOG_DIR:-"/var/lib/zookeeper/data"}

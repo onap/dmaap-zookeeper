@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 
-ENV ZK_DATA_DIR=/var/lib/zookeeper/data \
+ENV ZK_USER=mrzookeeper \
+    ZK_DATA_DIR=/var/lib/zookeeper/data \
     ZK_LOG_DIR=/var/log/zookeeper \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
@@ -51,9 +52,11 @@ RUN chmod -R 777 /opt/zookeeper/bin
 ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
 EXPOSE 2181 2888 3888
 
-RUN addgroup  2000 \
-    && adduser  1000 -ingroup 2000 \
-    && chown -R 1000:2000 /opt/$ZK_DIST/ /opt/zookeeper/ /var/lib/ /var/log/ /tmp/zookeeper/
+RUN useradd $ZK_USER \
+    && [ `id -u $ZK_USER` -eq 1000 ] \
+    && [ `id -g $ZK_USER` -eq 1000 ] \
+    && chown -R $ZK_USER:$ZK_USER /opt/$ZK_DIST/ /opt/zookeeper/ /var/lib/ /var/log/ /tmp/zookeeper/
 
-USER 1000
+USER $ZK_USER
+
 
