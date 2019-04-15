@@ -106,6 +106,16 @@ function create_data_dirs() {
         mkdir -p $ZK_DATA_DIR
         chown -R $ZK_USER:$ZK_USER $ZK_DATA_DIR
     fi
+    
+    if [ -d $ZK_DATA_DIR/version-2 ]; then
+          echo "API Keys already loaded";
+          else
+          git clone -b master --single-branch http://gerrit.onap.org/r/dmaap/messagerouter/messageservice.git /tmp/zookeeper/gerrit
+          cp -var /tmp/zookeeper/gerrit/oom-topics/data-zookeeper/* $ZK_DATA_DIR;
+          chown -R $ZK_USER:$ZK_USER /tmp/zookeeper/gerrit
+          rm -rf /tmp/zookeeper/gerrit;
+          echo "Copying API Keys completed.";
+     fi
 
     if [ ! -d $ZK_DATA_LOG_DIR  ]; then
         mkdir -p $ZK_DATA_LOG_DIR
