@@ -40,6 +40,9 @@ RUN set -x \
 # Copy configuration generator script to bin
 COPY scripts /opt/zookeeper/bin/
 
+# Copy APIKeys
+RUN git clone -b master --single-branch http://gerrit.onap.org/r/dmaap/messagerouter/messageservice.git /tmp/zookeeper/gerrit
+
 # Create a user for the zookeeper process and configure file system ownership
 # for necessary directories and symlink the distribution as a user executable
 RUN set -x \
