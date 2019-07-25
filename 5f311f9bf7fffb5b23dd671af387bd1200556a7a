@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: sunil unnava <su622b@att.com>
+Submitted-by: sunil unnava <su622b@att.com>
+Submitted-at: Thu, 25 Jul 2019 14:20:28 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/dmaap/zookeeper/+/92007
+Project: dmaap/zookeeper
+Branch: refs/heads/master
