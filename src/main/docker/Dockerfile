@@ -1,17 +1,16 @@
-FROM ubuntu:16.04
+FROM openjdk:8-jre-alpine
 
 ENV ZK_USER=mrzookeeper \
     ZK_DATA_DIR=/var/lib/zookeeper/data \
     ZK_LOG_DIR=/var/log/zookeeper \
-    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-
+    JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
 
 ARG ZK_DIST=zookeeper-3.4.9
 
 RUN set -x \
-    && apt-get update \
-    && apt-get install -y openjdk-8-jre-headless wget netcat-openbsd \
-    && apt-get install -y git \
+    && apk update \
+    && apk add wget netcat-openbsd \
+    && apk add bash git\
     && wget -q "http://archive.apache.org/dist/zookeeper/$ZK_DIST/$ZK_DIST.tar.gz" \
     && wget -q "http://archive.apache.org/dist/zookeeper/$ZK_DIST/$ZK_DIST.tar.gz.asc" \
     && tar -xzf "$ZK_DIST.tar.gz" -C /opt \
@@ -34,7 +33,6 @@ RUN set -x \
     /opt/zookeeper/$ZK_DIST.jar.asc \
     /opt/zookeeper/$ZK_DIST.jar.md5 \
     /opt/zookeeper/$ZK_DIST.jar.sha1 \
-    && apt-get autoremove -y wget \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy configuration generator script to bin
@@ -53,14 +51,12 @@ RUN set -x \
 && ln -s /opt/zookeeper/lib/* /usr/share/zookeeper
 
 RUN chmod -R 777 /opt/zookeeper/bin
-ENTRYPOINT /opt/zookeeper/bin/start-zookeeper.sh
+ENTRYPOINT ["bash", "/opt/zookeeper/bin/start-zookeeper.sh"]
 EXPOSE 2181 2888 3888
 
-RUN useradd $ZK_USER \
+RUN adduser $ZK_USER --disabled-password \
     && [ `id -u $ZK_USER` -eq 1000 ] \
     && [ `id -g $ZK_USER` -eq 1000 ] \
     && chown -R $ZK_USER:$ZK_USER /opt/$ZK_DIST/ /opt/zookeeper/ /var/lib/ /var/log/ /tmp/zookeeper/
 
 USER $ZK_USER
-
-
