@@ -1,0 +1,7 @@
+Verified+1: ONAP Jobbuilder <onap-jobbuilder@jenkins.onap.org>
+Code-Review+2: Mandar Sawant <ms5838@att.com>
+Submitted-by: Mandar Sawant <ms5838@att.com>
+Submitted-at: Tue, 20 Aug 2019 20:45:51 +0000
+Reviewed-on: https://gerrit.onap.org/r/c/dmaap/zookeeper/+/93990
+Project: dmaap/zookeeper
+Branch: refs/heads/master
