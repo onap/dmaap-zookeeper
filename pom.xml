@@ -21,7 +21,7 @@
 
 	<groupId>org.onap.dmaap.zookeeper</groupId>
 	<artifactId>zookeeper</artifactId>
-	<version>6.0.1-SNAPSHOT</version>
+	<version>6.0.2-SNAPSHOT</version>
 	<name>zookeeper</name>
 	<licenses>
 		<license>
@@ -104,6 +104,93 @@
 					<skip />
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<imageName>onap/dmaap/zookeeper</imageName>
+					<dockerDirectory>src/main/docker</dockerDirectory>
+					<serverId>docker-hub</serverId>
+					<imageTags>
+						<imageTag>${dockertag1}</imageTag>
+						<imageTag>${dockertag2}</imageTag>
+					</imageTags>
+					<forceTags>true</forceTags>
+					<resources>
+						<!-- <resource> <targetPath>/</targetPath> <directory>${dockerLocation}</directory> 
+							<include>${project.build.finalName}.jar</include> </resource> -->
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>**/**</include>
+						</resource>
+					</resources>
+				</configuration>
+				<executions>
+					<execution>
+						<id>build-image</id>
+						<phase>install</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<configuration>
+							<skipDockerBuild>${skip.docker.build}</skipDockerBuild>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tag-image-project-version</id>
+						<phase>install</phase>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<image>onap/dmaap/zookeeper</image>
+							<newName>${docker.push.registry}/onap/dmaap/zookeeper:${dockertag2}</newName>
+							<skipDockerTag>${skip.docker.push}</skipDockerTag>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tag-image-latest</id>
+						<phase>install</phase>
+						<goals>
+							<goal>tag</goal>
+						</goals>
+						<configuration>
+							<image>onap/dmaap/zookeeper</image>
+							<newName>${docker.push.registry}/onap/dmaap/zookeeper:${dockertag1}</newName>
+							<skipDockerTag>${skip.docker.push}</skipDockerTag>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>push-image</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<imageName>${docker.push.registry}/onap/dmaap/zookeeper:${dockertag2}</imageName>
+							<skipDockerPush>${skip.docker.push}</skipDockerPush>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>push-image-latest</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>push</goal>
+						</goals>
+						<configuration>
+							<imageName>${docker.push.registry}/onap/dmaap/zookeeper:${dockertag1}</imageName>
+							<skipDockerPush>${skip.docker.push}</skipDockerPush>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
@@ -115,7 +202,8 @@
 		<skip.docker.build>true</skip.docker.build>
 		<skip.docker.push>true</skip.docker.push>
 		<nexusproxy>https://nexus.onap.org</nexusproxy>
-		<docker.image.name>onap/dmaap/zookeeper</docker.image.name>
+		<docker.push.registry>nexus3.onap.org:10003</docker.push.registry>
+		<onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
 	</properties>
 
 	<!-- Distribution management -->
@@ -159,7 +247,7 @@
                                         project.properties['dockertag1']=project.properties['ver'] + "-latest";
                                         project.properties['dockertag2']=project.properties['ver'] + "-" + project.properties['timestamp'];
                                         } else {
-                                        project.properties['dockertag1']=project.properties['ver'] + "-STAGING-latest";
+                                        project.properties['dockertag1']=project.properties['ver']+ "-STAGING-latest";
                                         project.properties['dockertag2']=project.properties['ver'] + "-STAGING-" + project.properties['timestamp'];
                                         }
                                         println 'docker tag 1: ' + project.properties['dockertag1'];
@@ -168,46 +256,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-		    </plugin>
-		    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.28.0</version>  
-                        <configuration>
-                            <verbose>${docker.verbose}</verbose>
-                            <apiVersion>${docker.apiVersion}</apiVersion>
-                            <pullRegistry>${docker.pull.registry}</pullRegistry>
-                            <pushRegistry>${docker.push.registry}</pushRegistry>
-                            <images>
-                                <image>                            
-                                    <name>${docker.image.name}</name>
-                                    <build>
-                                        <cleanup>try</cleanup>
-                                        <dockerFile>Dockerfile</dockerFile>
-                                        <tags>
-                                            <tag>${dockertag1}</tag>
-                                            <tag>${dockertag2}</tag>
-                                        </tags>
-                                    </build>
-                                </image>
-                            </images>
-                        </configuration>
-                         <executions>
-                             <execution>
-                                 <id>generate-images</id>
-                                 <phase>install</phase>
-                                 <goals>
-                                     <goal>build</goal>
-                                 </goals>
-                             </execution>
-                             <execution>
-                                 <id>push-images</id>
-                                 <phase>deploy</phase>
-                                 <goals>
-                                     <goal>push</goal>
-                                 </goals>
-                             </execution>
-                         </executions>
                     </plugin>
                     </plugins>
                     </build>
