@@ -3,8 +3,6 @@ FROM confluentinc/cp-base:5.3.1
 ENV COMPONENT=zookeeper \
     ZK_USER=mrzookeeper
 
-
-
 RUN echo "===> installing ${COMPONENT}..." \
     && apt-get update && apt-get install -y confluent-kafka-${SCALA_VERSION}=${CONFLUENT_VERSION}${CONFLUENT_PLATFORM_LABEL}-${CONFLUENT_DEB_VERSION} \
     \
@@ -20,8 +18,9 @@ RUN set -x \
     && apt-get update \
      && apt-get install -y git \
      && git clone -b master --single-branch http://gerrit.onap.org/r/dmaap/messagerouter/messageservice.git /tmp/zookeeper/gerrit 	
+
 COPY include/etc/confluent/docker /etc/confluent/docker
-#COPY zk_server_jaas.conf /etc/${COMPONENT}/secrets/jaas/
+RUN chmod -R +x /etc/confluent/docker
 
 RUN useradd  -u 1000  -g 0 $ZK_USER
 USER $ZK_USER
