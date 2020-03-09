@@ -1,9 +1,13 @@
 FROM confluentinc/cp-base:5.3.1
 
-ENV COMPONENT=zookeeper \
-    ZK_USER=mrzookeeper
+# allow arg override of required env params
+ARG KAFKA_ZOOKEEPER_CONNECT
+ENV KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT}
+ARG KAFKA_ADVERTISED_LISTENERS
+ENV KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
 
-
+ENV COMPONENT=kafka \
+    KAFKA_USER=mrkafka
 
 RUN echo "===> installing ${COMPONENT}..." \
     && apt-get update && apt-get install -y confluent-kafka-${SCALA_VERSION}=${CONFLUENT_VERSION}${CONFLUENT_PLATFORM_LABEL}-${CONFLUENT_DEB_VERSION} \
@@ -11,21 +15,20 @@ RUN echo "===> installing ${COMPONENT}..." \
     && echo "===> clean up ..."  \
     && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
     \
-    && echo "===> Setting up ${COMPONENT} dirs" \
-    && mkdir -p /var/lib/${COMPONENT}/data  /var/lib/${COMPONENT}/log /etc/${COMPONENT}/secrets/jaas /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent  \
-    && chmod -R ag+w /etc/kafka /var/lib/${COMPONENT}/data /var/lib/${COMPONENT}/log  /etc/${COMPONENT}/secrets /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
-    && chown -R root:root /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper  
-    
-RUN set -x \
-    && apt-get update \
-     && apt-get install -y git \
-     && git clone -b master --single-branch http://gerrit.onap.org/r/dmaap/messagerouter/messageservice.git /tmp/zookeeper/gerrit 	
+    && echo "===> Setting up ${COMPONENT} dirs..." \
+    && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets/cert /etc/${COMPONENT}/secrets/jaas /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
+    && chmod -R ag+w /etc/${COMPONENT} /var/lib/${COMPONENT}/data   /etc/${COMPONENT}/secrets /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
+    && chown -R root:root /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper
+
 COPY include/etc/confluent/docker /etc/confluent/docker
-#COPY zk_server_jaas.conf /etc/${COMPONENT}/secrets/jaas/
+RUN chmod -R +x /etc/confluent/docker
 
-RUN useradd  -u 1000  -g 0 $ZK_USER
-USER $ZK_USER
+COPY org.onap.dmaap.mr.trust.jks \
+     org.onap.dmaap.mr.p12 \
+     org.onap.dmaap.mr.keyfile \
+     /etc/${COMPONENT}/secrets/cert/
 
-EXPOSE 2181 2888 3888
+COPY  kafka11aaf-jar-with-dependencies.jar /usr/share/java/${COMPONENT}/
 
-CMD ["/etc/confluent/docker/run"]
+
+RUN useradd  -u 1000  -g 0 $KAFKA_USER
