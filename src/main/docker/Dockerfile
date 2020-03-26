@@ -23,6 +23,7 @@ COPY include/etc/confluent/docker /etc/confluent/docker
 RUN chmod -R +x /etc/confluent/docker
 
 RUN useradd  -u 1000  -g 0 $ZK_USER
+RUN  chown -R $ZK_USER:0  /tmp/zookeeper
 USER $ZK_USER
 
 EXPOSE 2181 2888 3888
