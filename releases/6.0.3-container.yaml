@@ -1,0 +1,8 @@
+distribution_type: 'container'
+container_release_tag: '6.0.3'
+project: 'dmaap-zookeeper-docker'
+log-dir: 'dmaap-zookeeper-docker-maven-docker-stage-master/278'
+ref: d2ca5a6fb43f5c788d6a4b5a533f71dc8f3f996c
+containers:
+  - name: dmaap/zookeeper
+    version: 6.0.3-STAGING-20200327T130014Z
