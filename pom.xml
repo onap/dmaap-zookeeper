@@ -21,7 +21,7 @@
 
 	<groupId>org.onap.dmaap.zookeeper</groupId>
 	<artifactId>zookeeper</artifactId>
-	<version>6.0.3-SNAPSHOT</version>
+	<version>6.0.4-SNAPSHOT</version>
 	<name>zookeeper</name>
 	<licenses>
 		<license>
