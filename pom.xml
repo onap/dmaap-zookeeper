@@ -10,211 +10,107 @@
 	OF ANY KIND, either express or implied. See the License for the specific 
 	language governing permissions and limitations under the License. ============LICENSE_END========================================================= 
 	ECOMP is a trademark and service mark of AT&T Intellectual Property. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>org.onap.oparent</groupId>
-		<artifactId>oparent</artifactId>
-		<version>2.1.0</version>
-	</parent>
-
-	<groupId>org.onap.dmaap.zookeeper</groupId>
-	<artifactId>zookeeper</artifactId>
-	<version>6.0.4-SNAPSHOT</version>
-	<name>zookeeper</name>
-	<licenses>
-		<license>
-			<name>Apache License Version 2.0</name>
-		</license>
-	</licenses>
-
-	<developers>
-		<developer>
-			<name>Sunil Unnava</name>
-			<email/>
-			<organization>ATT</organization>
-			<organizationUrl>www.att.com</organizationUrl>
-		</developer>
-	</developers>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.6</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.wagon</groupId>
-						<artifactId>wagon-webdav-jackrabbit</artifactId>
-						<version>2.10</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
-				<version>3.0.2</version> </plugin> -->
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.0</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-				<configuration>
-					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<checkModificationExcludes>
-					</checkModificationExcludes>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.scm</groupId>
-						<artifactId>maven-scm-provider-gitexe</artifactId>
-						<version>1.9.4</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-
-	
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.8</version>
-				<executions>
-					<execution>
-						<id>default-deploy</id>
-						<phase>none</phase>
-						<configuration>
-							<skip />
-						</configuration>
-					</execution>
-				</executions>
-				<configuration>
-					<skip />
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<timestamp>${maven.build.timestamp}</timestamp>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.onap.oparent</groupId>
+    <artifactId>oparent</artifactId>
+    <version>3.2.0</version>
+  </parent>
+  <groupId>org.onap.dmaap.zookeeper</groupId>
+  <artifactId>zookeeper</artifactId>
+  <version>6.1.0-SNAPSHOT</version>
+  <name>zookeeper</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
-		<sitePath>/content/sites/site/org/onap/dmaap/zookeeper/${project.artifactId}/${project.version}</sitePath>
-		<skip.docker.build>true</skip.docker.build>
-		<skip.docker.push>true</skip.docker.push>
-		<nexusproxy>https://nexus.onap.org</nexusproxy>
-		<docker.push.registry>nexus3.onap.org:10003</docker.push.registry>
-		<onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
-    <zookeeper.dist.version>3.4.13</zookeeper.dist.version>
-	</properties>
-
-	<!-- Distribution management -->
-	<distributionManagement>
-		<site>
-			<id>ecomp-site</id>
-			<url>dav:${nexusproxy}${sitePath}</url>
-		</site>
-	</distributionManagement>
-
-	<dependencies>
-	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>docker</id>
-			<properties>
-				<skip.docker.build>false</skip.docker.build>
-				<skip.docker.tag>false</skip.docker.tag>
-				<skip.docker.push>false</skip.docker.push>
-			</properties>
-		   <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.groovy.maven</groupId>
-                        <artifactId>gmaven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>execute</goal>
-                                </goals>
-                                <configuration>
-                                    <properties>
-                                        <ver>${project.version}</ver>
-                                        <timestamp>${maven.build.timestamp}</timestamp>
-                                    </properties>
-                                    <source>
-                                        println project.properties['ver'];
-                                        if ( project.properties['ver'].endsWith("-SNAPSHOT") ) {
-                                        project.properties['dockertag1']=project.properties['ver'] + "-latest";
-                                        project.properties['dockertag2']=project.properties['ver'] + "-" + project.properties['timestamp'];
-                                        } else {
-                                        project.properties['dockertag1']=project.properties['ver'] + "-STAGING-latest";
-                                        project.properties['dockertag2']=project.properties['ver'] + "-STAGING-" + project.properties['timestamp'];
-                                        }
-                                        println 'docker tag 1: ' + project.properties['dockertag1'];
-                                        println 'docker tag 2: ' + project.properties['dockertag2'];
-                                    </source>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>io.fabric8</groupId>
-                        <artifactId>docker-maven-plugin</artifactId>
-                        <version>0.28.0</version>  
-                        <configuration>
-                            <verbose>${docker.verbose}</verbose>
-                            <apiVersion>${docker.apiVersion}</apiVersion>
-                            <pullRegistry>${docker.pull.registry}</pullRegistry>
-                            <pushRegistry>${docker.push.registry}</pushRegistry>
-                            <images>
-                                <image>                            
-                                    <name>onap/dmaap/zookeeper</name>
-                                    <build>
-                                        <cleanup>try</cleanup>
-                                        <dockerFile>Dockerfile</dockerFile>
-                                        <tags>
-                                            <tag>${dockertag1}</tag>
-                                            <tag>${dockertag2}</tag>
-                                        </tags>
-                                    </build>
-                                </image>
-                            </images>
-                        </configuration>
-                         <executions>
-                             <execution>
-                                 <id>generate-images</id>
-                                 <phase>install</phase>
-                                 <goals>
-                                     <goal>build</goal>
-                                 </goals>
-                             </execution>
-                             <execution>
-                                 <id>push-images</id>
-                                 <phase>deploy</phase>
-                                 <goals>
-                                     <goal>push</goal>
-                                 </goals>
-                             </execution>
-                         </executions>
-                    </plugin>
-                    </plugins>
-                    </build>
-		</profile>
-
-	</profiles>
-
+    <docker.push.registry>nexus3.onap.org:10003</docker.push.registry>
+    <onap.nexus.url>https://nexus.onap.org</onap.nexus.url>
+  </properties>
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <properties>
+        <skip.docker.build>false</skip.docker.build>
+        <skip.docker.tag>false</skip.docker.tag>
+        <skip.docker.push>false</skip.docker.push>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.groovy.maven</groupId>
+            <artifactId>gmaven-plugin</artifactId>
+            <version>1.0</version>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <properties>
+                    <ver>${project.version}</ver>
+                    <timestamp>${maven.build.timestamp}</timestamp>
+                  </properties>
+                  <source>
+                    println project.properties['ver'];
+                    if (project.properties['ver'].endsWith("-SNAPSHOT")) {
+                      project.properties['dockertag1'] = project.properties['ver'] + "-latest";
+                      project.properties['dockertag2'] = project.properties['ver'] + "-" + project.properties['timestamp'];
+                    } else {
+                      project.properties['dockertag1'] = project.properties['ver'] + "-STAGING-latest";
+                      project.properties['dockertag2'] = project.properties['ver'] + "-STAGING-" + project.properties['timestamp'];
+                    }
+                    println 'docker tag 1: ' + project.properties['dockertag1'];
+                    println 'docker tag 2: ' + project.properties['dockertag2'];
+                  </source>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.28.0</version>
+            <configuration>
+              <pullRegistry>${docker.pull.registry}</pullRegistry>
+              <pushRegistry>${docker.push.registry}</pushRegistry>
+              <images>
+                <image>
+                  <name>onap/dmaap/zookeeper</name>
+                  <build>
+                    <cleanup>try</cleanup>
+                    <dockerFile>Dockerfile</dockerFile>
+                    <tags>
+                      <tag>${dockertag1}</tag>
+                      <tag>${dockertag2}</tag>
+                    </tags>
+                  </build>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-images</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>push-images</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>push</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
