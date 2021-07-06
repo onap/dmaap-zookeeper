@@ -17,7 +17,7 @@
 . /etc/confluent/docker/bash-config
 
 echo "===> ENV Variables ..."
-show_env
+env
 
 echo "===> User"
 id

@@ -1,31 +1,19 @@
-FROM confluentinc/cp-base:5.3.1
+FROM confluentinc/cp-zookeeper:6.2.0
 
 ENV COMPONENT=zookeeper \
-    ZK_USER=mrzookeeper
+    ZK_USER=mrzookeeper \
+    ZK_GROUP=onap
 
-RUN echo "===> installing ${COMPONENT}..." \
-    && wget -qO - http://packages.confluent.io/deb/3.0/archive.key | apt-key add - \
-    && echo "deb [arch=amd64] http://packages.confluent.io/deb/3.0 stable main" | tee -a /etc/apt/sources.list \
-    && apt-key update && apt-get update && apt-get install -y confluent-kafka-2.11 --force-yes \
-    && echo "===> clean up ..."  \
-    && apt-get autoremove -y && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
-    && echo "===> clean up ..."  \
-    && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
-    && echo "===> Setting up ${COMPONENT} dirs" \
-    && mkdir -p /var/lib/${COMPONENT}/data  /var/lib/${COMPONENT}/log /etc/${COMPONENT}/secrets/jaas /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent  \
-    && chmod -R ag+w /etc/kafka /var/lib/${COMPONENT}/data /var/lib/${COMPONENT}/log  /etc/${COMPONENT}/secrets /etc/${COMPONENT}/data  /var/log/kafka /var/log/confluent \
-    && chown -R root:root /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper  
-    
-RUN set -x \
-    && apt-get update \
-    && apt-get install -y git --force-yes \
-    && git clone -b master --single-branch http://gerrit.onap.org/r/dmaap/messagerouter/messageservice.git /tmp/zookeeper/gerrit
+USER root
 
-COPY include/etc/confluent/docker /etc/confluent/docker
-RUN chmod -R +x /etc/confluent/docker
+RUN userdel -r appuser && groupadd $ZK_GROUP && useradd $ZK_USER -u 1000 -G 1000,$ZK_GROUP
 
-RUN useradd  -u 1000  -g 0 $ZK_USER
-RUN  chown -R $ZK_USER:0  /tmp/zookeeper
+WORKDIR /home/$ZK_USER
+
+COPY include/etc/confluent/docker/* /etc/confluent/docker/
+RUN chmod -R +x /etc/confluent/docker \
+&& chown -R $ZK_USER:$ZK_GROUP /var/lib/${COMPONENT} /etc/kafka /etc/confluent/docker /var/log/kafka /var/lib/kafka /var/log/confluent
+
 USER $ZK_USER
 
 EXPOSE 2181 2888 3888
