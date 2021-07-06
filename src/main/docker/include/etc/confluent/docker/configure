@@ -44,36 +44,3 @@ fi
 dub template "/etc/confluent/docker/${COMPONENT}.properties.template" "/etc/kafka/${COMPONENT}.properties"
 dub template "/etc/confluent/docker/log4j.properties.template" "/etc/kafka/log4j.properties"
 dub template "/etc/confluent/docker/tools-log4j.properties.template" "/etc/kafka/tools-log4j.properties"
-
-
-ZK_REPLICAS=${ZOOKEEPER_REPLICAS:-1}
-HOST=$(hostname -s)
-DOMAIN=$(hostname -d)
-ZK_SERVER_PORT=${ZOOKEEPER_SERVER_PORT:-2888}
-ZK_ELECTION_PORT=${ZOOKEEPER_ELECTION_PORT:-3888}
-
-function print_servers() {
-   if [[ $HOST =~ (.*)-([0-9]+)$ ]]; then
-        NAME=${BASH_REMATCH[1]}
-        for (( i=1; i<=$ZK_REPLICAS; i++ ))
-    do
-        echo "server.$i=$NAME-$((i-1)).$DOMAIN:$ZK_SERVER_PORT:$ZK_ELECTION_PORT"
-    done
-  
-    fi
-}
-
-
-if [ $ZK_REPLICAS -gt 1 ]; then
-print_servers >> /etc/kafka/${COMPONENT}.properties
-fi
-
-if [ -d /var/lib/zookeeper/data/version-2 ]; then
-          echo "API Keys already loaded";
-          else
-          cp -var /tmp/zookeeper/gerrit/oom-topics/data-zookeeper/* /var/lib/zookeeper/data/;
-          rm -rf /tmp/zookeeper/gerrit;
-          echo "Copying API Keys completed.";
-     fi
-
-
