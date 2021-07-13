@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54793170_12655a42",
+        "filename": "src/main/docker/include/etc/confluent/docker/bash-config",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 4405
+      },
+      "writtenOn": "2021-07-13T13:25:24Z",
+      "side": 1,
+      "message": "Can we remove this file",
+      "revId": "f0c5f12b46f804a65ae2243cb48fa0d4e0874d22",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb31ebd2_abb50503",
+        "filename": "src/main/docker/include/etc/confluent/docker/mesos-setup.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 4405
+      },
+      "writtenOn": "2021-07-13T13:25:24Z",
+      "side": 1,
+      "message": "Remove this file also",
+      "range": {
+        "startLine": 9,
+        "startChar": 30,
+        "endLine": 9,
+        "endChar": 47
+      },
+      "revId": "f0c5f12b46f804a65ae2243cb48fa0d4e0874d22",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79cee87e_1395afbb",
+        "filename": "src/main/docker/include/etc/confluent/docker/tools-log4j.properties.template",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 4405
+      },
+      "writtenOn": "2021-07-13T13:25:24Z",
+      "side": 1,
+      "message": "Not sure how this sneaked in.. delete",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 3
+      },
+      "revId": "f0c5f12b46f804a65ae2243cb48fa0d4e0874d22",
+      "serverId": "14b4e41f-c4e3-4fb9-9955-6a9b5656895a",
+      "unresolved": true
+    }
+  ]
+}
